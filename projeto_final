@@ -1,0 +1,194 @@
+#include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main() {
+    FILE *frente, *cozinha, *entregas, *temp;
+    char nome[50], linha[100], dia[20];
+    int opcao, i = 1, func, setor;
+    float pagB = 70.0, pagC = 80.0;
+
+    do {
+        system("cls");
+        printf("\n=================================\n");
+        printf("|     SISTEMA DE PAGAMENTOS     |\n");
+        printf("|-------------------------------|\n");
+        printf("| 1 - Adicionar funcionario     |\n");
+        printf("| 2 - Listar funcionarios       |\n");
+        printf("| 3 - Remover funcionario       |\n");
+        printf("| 4 - Lista de pagamentos       |\n");
+        printf("| 0 - Sair                      |\n");
+        printf("=================================\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao) {
+            case 1:
+                system("cls");
+                printf("=================================================\n");
+                printf("| Em qual setor o funcionario sera adicionado?  |\n");
+                printf("|-----------------------------------------------|\n");
+                printf("| 1 - Frente                                    |\n");
+                printf("| 2 - Cozinha                                   |\n");
+                printf("| 3 - Entregas                                  |\n");
+                printf("=================================================\n");
+                scanf("%d", &setor);
+                getchar();
+                printf("Qual o nome do funcionario que deseja adicionar?\n");
+                fgets(nome, sizeof(nome), stdin);
+
+                switch (setor) {
+                    case 1:
+                        frente = fopen("frente.txt", "a");
+                        if (!frente) { printf("Erro ao abrir o arquivo!\n"); return 1; }
+                        fprintf(frente, "%s", nome);
+                        fclose(frente);
+                        break;
+                    case 2:
+                        cozinha = fopen("cozinha.txt", "a");
+                        if (!cozinha) { printf("Erro ao abrir o arquivo!\n"); return 1; }
+                        fprintf(cozinha, "%s", nome);
+                        fclose(cozinha);
+                        break;
+                    case 3:
+                        entregas = fopen("entregas.txt", "a");
+                        if (!entregas) { printf("Erro ao abrir o arquivo!\n"); return 1; }
+                        fprintf(entregas, "%s", nome);
+                        fclose(entregas);
+                        break;
+                    default:
+                        printf("Setor invalido!\n");
+                        break;
+                }
+                break;
+
+            case 2:
+                system("cls");
+                printf("\n========= Frente =========\n");
+                frente = fopen("frente.txt", "r");
+                if (frente) while (fgets(linha, sizeof(linha), frente)) printf("%s", linha);
+                fclose(frente);
+
+                printf("\n========= Cozinha =========\n");
+                cozinha = fopen("cozinha.txt", "r");
+                if (cozinha) while (fgets(linha, sizeof(linha), cozinha)) printf("%s", linha);
+                fclose(cozinha);
+
+                printf("\n========= Entregas =========\n");
+                entregas = fopen("entregas.txt", "r");
+                if (entregas) while (fgets(linha, sizeof(linha), entregas)) printf("%s", linha);
+                fclose(entregas);
+
+                system("pause");
+                break;
+
+            case 3:
+                system("cls");
+                printf("=================================================\n");
+                printf("| De qual setor o funcionario sera retirado?    |\n");
+                printf("|-----------------------------------------------|\n");
+                printf("| 1 - Frente                                    |\n");
+                printf("| 2 - Cozinha                                   |\n");
+                printf("| 3 - Entregas                                  |\n");
+                printf("=================================================\n");
+                scanf("%d", &setor);
+                getchar();
+                i = 1;
+
+                FILE *origem;
+                char *nomeArquivo;
+                switch (setor) {
+                    case 1: origem = fopen("frente.txt", "r"); nomeArquivo = "frente.txt"; break;
+                    case 2: origem = fopen("cozinha.txt", "r"); nomeArquivo = "cozinha.txt"; break;
+                    case 3: origem = fopen("entregas.txt", "r"); nomeArquivo = "entregas.txt"; break;
+                    default: printf("Setor invalido!\n"); continue;
+                }
+
+                if (!origem) { printf("Erro!\n"); break; }
+                while (fgets(linha, sizeof(linha), origem)) printf("%d - %s", i++, linha);
+                fclose(origem);
+
+                printf("\nQual funcionario sera removido? ");
+                scanf("%d", &func); getchar();
+
+                origem = fopen(nomeArquivo, "r");
+                temp = fopen("temp.txt", "w");
+                i = 1;
+                while (fgets(linha, sizeof(linha), origem)) {
+                    if (i != func) fprintf(temp, "%s", linha);
+                    i++;
+                }
+                fclose(origem); fclose(temp);
+                remove(nomeArquivo); rename("temp.txt", nomeArquivo);
+                break;
+
+            case 4:
+                system("cls");
+                frente = fopen("frente.txt", "r");
+                cozinha = fopen("cozinha.txt", "r");
+                entregas = fopen("entregas.txt", "r");
+                FILE *pagamentoFinal = fopen("pagamentos.txt", "w");
+
+                if (!frente || !cozinha || !entregas || !pagamentoFinal) {
+                    printf("Erro ao abrir arquivos!\n");
+                    return 1;
+                }
+
+                float desconto, valorBase;
+                int numeroFuncionario = 1, entregasFeitas, qtdVN;
+                char nomeEntregador[100];
+
+                while (fgets(linha, sizeof(linha), frente)) {
+                    linha[strcspn(linha, "\n")] = '\0';
+                    valorBase = pagB;
+                    printf("Funcionario: %s\nDescontar quanto? R$ ", linha);
+                    scanf("%f", &desconto);
+                    getchar();
+                    valorBase -= desconto;
+                    fprintf(pagamentoFinal, "%d - %s - R$ %.2f\n", numeroFuncionario++, linha, valorBase);
+                }
+
+                while (fgets(linha, sizeof(linha), cozinha)) {
+                    linha[strcspn(linha, "\n")] = '\0';
+                    valorBase = pagC;
+                    printf("Funcionario: %s\nDescontar quanto? R$ ", linha);
+                    scanf("%f", &desconto);
+                    getchar();
+                    valorBase -= desconto;
+                    fprintf(pagamentoFinal, "%d - %s - R$ %.2f\n", numeroFuncionario++, linha, valorBase);
+                }
+
+                while (fgets(nomeEntregador, sizeof(nomeEntregador), entregas)) {
+                    nomeEntregador[strcspn(nomeEntregador, "\n")] = 0;
+                    printf("Entregador: %s\nQuantas entregas ele fez? ", nomeEntregador);
+                    scanf("%d", &entregasFeitas);
+                    printf("Quantas entregas foram VN? ");
+                    scanf("%d", &qtdVN);
+                    printf("Vai descontar algum valor? R$ ");
+                    scanf("%f", &desconto);
+                    getchar();
+                    valorBase = (entregasFeitas * 10.0) + qtdVN * 1.0 - desconto;
+                    fprintf(pagamentoFinal, "%d - %s - %d entregas (+%d VN)\nR$%.2f\n\n", numeroFuncionario++, nomeEntregador, entregasFeitas, qtdVN, valorBase);
+                }
+
+                fclose(frente);
+                fclose(cozinha);
+                fclose(entregas);
+                fclose(pagamentoFinal);
+                system("cls");
+                printf("Qual o dia da semana?");scanf("%s", &dia);
+                printf("%s\n", dia);
+                pagamentoFinal = fopen("pagamentos.txt", "r");
+                if (pagamentoFinal) while (fgets(linha, sizeof(linha), pagamentoFinal)) printf("%s", linha);
+                fclose(pagamentoFinal);
+                printf("\nArquivo 'pagamentos.txt' criado com sucesso!\n");
+                system("pause");
+                break;
+        } 
+
+    } while (opcao != 0);
+
+    return 0;
+}
