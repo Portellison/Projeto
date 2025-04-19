@@ -13,7 +13,7 @@ Este é um sistema simples feito em linguagem C para gerenciamento de funcionár
 - Gerar lista de pagamentos:
   - Frente: valor base R$70,00
   - Cozinha: valor base R$80,00
-  - Entregadores: R$10,00 por entrega + R$1,00 por VN
+  - Entregadores: R$6,00 por entrega + R$1,00 por entregas mais caras
   - Opção de desconto manual para todos
 
 ## 💾 Armazenamento
@@ -33,6 +33,7 @@ O sistema utiliza arquivos `.txt` para armazenar os dados dos funcionários:
 
 ## 🛠 Estrutura do Projeto
 
+📁 lanchonete/ ├── frente.txt ├── cozinha.txt ├── entregas.txt ├── pagamentos.txt └── lanchonete.c
 
 ## ✍️ Autor
 
