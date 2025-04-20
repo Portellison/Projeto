@@ -169,7 +169,7 @@ int main() {
                     printf("Vai descontar algum valor? R$ ");
                     scanf("%f", &desconto);
                     getchar();
-                    valorBase = (entregasFeitas * 10.0) + qtdVN * 1.0 - desconto;
+                    valorBase = (entregasFeitas * 6.0) + qtdVN * 1.0 - desconto;
                     fprintf(pagamentoFinal, "%d - %s - %d entregas (+%d VN)\nR$%.2f\n\n", numeroFuncionario++, nomeEntregador, entregasFeitas, qtdVN, valorBase);
                 }
 
